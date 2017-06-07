@@ -1,0 +1,33 @@
+{
+  "name": "danveem.api",
+  "version": "0.9.0",
+  "description": "REST api for danveem(The virtual notice board)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon api/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akilaadi/danveem.git"
+  },
+  "keywords": [
+    "virtual",
+    "notice",
+    "board",
+    "danveem"
+  ],
+  "author": "Akila Adikari",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akilaadi/danveem/issues"
+  },
+  "homepage": "https://github.com/akilaadi/danveem#readme",
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3"
+  }
+}
