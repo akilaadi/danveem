@@ -29,7 +29,7 @@ function boardsModel() {
                 "#ID": "ID"
             },
             ExpressionAttributeValues: {
-                ":userid": userId
+                ":userid": parseInt(userId)
             }
         };
 
@@ -37,30 +37,32 @@ function boardsModel() {
             if (err) {
                 error(err);
             } else {
-                success(data);
+                success(data.Items[0].SubscribedBoards);
             }
         });
     };
 
     this.getBoardsByUser = function (userId, success, error) {
         this.getBoardIdsByUser(userId, function (boardIds) {
+            var expressionAttributeValues = {};
+            boardIds.forEach(function (element, index) {
+                expressionAttributeValues[":val" + index] = element;
+            }, this);
+
             var params = {
                 TableName: 'Boards',
-                ProjectionExpression: '#ID, Title, AnnouncementList, Metadata',
-                KeyConditionExpression: '#ID IN (:boardIds)',
+                FilterExpression: '#ID IN (' + Object.keys(expressionAttributeValues).join(',') + ')',
                 ExpressionAttributeNames: {
                     "#ID": "ID"
                 },
-                ExpressionAttributeValues: {
-                    ":boardIds": boardIds
-                }
+                ExpressionAttributeValues: expressionAttributeValues
             };
 
-            docClient.query(params, function (err, data) {
+            docClient.scan(params, function (err, data) {
                 if (err) {
                     error(err);
                 } else {
-                    success(data);
+                    success(data.Items);
                 }
             });
         }, error);

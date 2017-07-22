@@ -20,13 +20,36 @@ function usersModel() {
         });
     };
 
-    this.addBoardtoUser = function (userId, success, error) {
+    this.updateUser = function (userId, data, success, error) {
+        var params = {
+            TableName: 'Users',
+            Key: {
+                "ID": userId
+            },
+            UpdateExpression: "set EditableBoards = :EB, SubscribedBoards=:SB, #NM=:NM, Email=:Email",
+            ExpressionAttributeNames: {
+                "#NM": "Name"
+            },
+            ExpressionAttributeValues: {
+                ":EB": data.EditableBoards,
+                ":SB": data.SubscribedBoards,
+                ":NM": data.Name,
+                ":Email": data.Email
+            },
+            ReturnValues: "UPDATED_NEW"
+        };
+        docClient.update(params, function (err, data) {
+            if (err) {
+                error(err);
+            } else {
+                success(data);
+            }
+        });
     };
 
     this.getUser = function (userId, success, error) {
         var params = {
             TableName: 'Users',
-            ProjectionExpression: 'ID',//SubscribedBoards
             KeyConditionExpression: '#ID = :userid',
             ExpressionAttributeNames: {
                 "#ID": "ID"

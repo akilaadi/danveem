@@ -8,7 +8,9 @@ module.exports.create_user = function (req, res) {
     let item = {
         ID: req.body.userid,
         Name: req.body.name,
-        Email: req.body.email
+        Email: req.body.email,
+        EditableBoards:[],
+        SubscribedBoards:[]
     };
 
     model.createUser(item, function (data) {
