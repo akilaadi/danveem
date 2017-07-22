@@ -1,10 +1,12 @@
 'use strict';
 module.exports = function(app){
-    var boards = require('../controllers/boardsController');
+    var controller = require('../controllers/boardsController');
 
     app.route('/boards')
-    .get(boards.list_all_boards)
-    .post(boards.create_a_board);
+    .post(controller.create_board);
+ 
+    app.route('/boards/user/:user_id')
+    .get(controller.get_boards_for_a_user);   
 }
 
 
