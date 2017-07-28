@@ -7,6 +7,12 @@ module.exports = function(app){
  
     app.route('/boards/user/:user_id')
     .get(controller.get_boards_for_a_user);   
+
+     app.route('/boards/:boardId')
+    .get(controller.get_board);      
+
+     app.route('/boards/share')
+    .post(controller.share_board);      
 }
 
 

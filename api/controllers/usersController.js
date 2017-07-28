@@ -16,7 +16,7 @@ module.exports.create_user = function (req, res) {
     model.createUser(item, function (data) {
         res.json(data);
     }, function (error) { 
-        res.json(error);
+        res.status(500).send({ error: error });
     });
 };
 
@@ -25,6 +25,6 @@ module.exports.get_user = function (req, res) {
     model.getUser(req.params.user_id, function (data) {
         res.json(data);
     }, function (error) { 
-        res.json(error);
+        res.status(500).send({ error: error });
     });
 };
