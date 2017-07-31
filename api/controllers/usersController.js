@@ -9,22 +9,30 @@ module.exports.create_user = function (req, res) {
         ID: req.body.userid,
         Name: req.body.name,
         Email: req.body.email,
-        EditableBoards:[],
-        SubscribedBoards:[]
+        EditableBoards: [],
+        SubscribedBoards: []
     };
 
     model.createUser(item, function (data) {
         res.json(data);
-    }, function (error) { 
+    }, function (error) {
         res.status(500).send({ error: error });
     });
 };
 
 module.exports.get_user = function (req, res) {
-
-    model.getUser(req.params.user_id, function (data) {
-        res.json(data);
-    }, function (error) { 
-        res.status(500).send({ error: error });
-    });
+    if (/^[\d]+$/.test(req.params.user_id)) {
+        model.getUser(req.params.user_id, function (data) {
+            res.json(data);
+        }, function (error) {
+            res.status(500).send({ error: error });
+        });
+    }
+    else {
+        model.getUserByEmail(req.params.user_id, function (data) {
+            res.json(data);
+        }, function (error) {
+            res.status(500).send({ error: error });
+        });
+    }
 };

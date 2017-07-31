@@ -6,7 +6,9 @@ var docClient = new AWS.DynamoDB.DocumentClient();
 
 function boardsModel() {
 
-    this.createBoard = function (data, success, error) {
+    let that = this;
+
+    that.createBoard = function (data, success, error) {
         var params = {
             TableName: 'Boards',
             Item: data
@@ -21,7 +23,7 @@ function boardsModel() {
         });
     };
 
-     this.updateBoard = function (boardId, data, success, error) {
+    that.updateBoard = function (boardId, data, success, error) {
         var params = {
             TableName: 'Boards',
             Key: {
@@ -41,9 +43,9 @@ function boardsModel() {
                 success(data);
             }
         });
-    };   
+    };
 
-    this.getBoardIdsByUser = function (userId, success, error) {
+    that.getBoardIdsByUser = function (userId, success, error) {
         var params = {
             TableName: 'Users',
             ProjectionExpression: 'SubscribedBoards',
@@ -60,44 +62,29 @@ function boardsModel() {
             if (err) {
                 error(err);
             } else {
-                success(data.Items[0].SubscribedBoards);
+                if (data.Items.length > 0) {
+                    success(data.Items[0].SubscribedBoards);
+                }
+                else{
+                    success([]);
+                }
             }
         });
     };
 
-    this.getBoardsByUser = function (userId, success, error) {
-        this.getBoardIdsByUser(userId, function (boardIds) {
+    that.getBoardsByUser = function (userId, success, error) {
+        that.getBoardIdsByUser(userId, function (boardIds) {
             if (boardIds.length > 0) {
-                var expressionAttributeValues = {};
-                boardIds.forEach(function (element, index) {
-                    expressionAttributeValues[":val" + index] = element;
-                }, this);
-
-                var params = {
-                    TableName: 'Boards',
-                    FilterExpression: '#ID IN (' + Object.keys(expressionAttributeValues).join(',') + ')',
-                    ExpressionAttributeNames: {
-                        "#ID": "ID"
-                    },
-                    ExpressionAttributeValues: expressionAttributeValues
-                };
-
-                docClient.scan(params, function (err, data) {
-                    if (err) {
-                        error(err);
-                    } else {
-                        success(data.Items);
-                    }
-                });
+                that.getBoards(boardIds, success, error);
             }
-            else{
+            else {
                 success([]);
             }
         }, error);
     };
 
-    this.getBoard = function(boardId,success,error){
-         var params = {
+    that.getBoard = function (boardId, success, error) {
+        var params = {
             TableName: 'Boards',
             KeyConditionExpression: '#ID = :boardId',
             ExpressionAttributeNames: {
@@ -114,7 +101,31 @@ function boardsModel() {
             } else {
                 success(data.Items[0]);
             }
-        });       
+        });
+    };
+
+    that.getBoards = function (boardIds, success, error) {
+        var expressionAttributeValues = {};
+        boardIds.forEach(function (element, index) {
+            expressionAttributeValues[":val" + index] = element;
+        }, this);
+
+        var params = {
+            TableName: 'Boards',
+            FilterExpression: '#ID IN (' + Object.keys(expressionAttributeValues).join(',') + ')',
+            ExpressionAttributeNames: {
+                "#ID": "ID"
+            },
+            ExpressionAttributeValues: expressionAttributeValues
+        };
+
+        docClient.scan(params, function (err, data) {
+            if (err) {
+                error(err);
+            } else {
+                success(data.Items);
+            }
+        });
     };
 };
 

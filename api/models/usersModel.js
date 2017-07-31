@@ -24,7 +24,7 @@ function usersModel() {
         var params = {
             TableName: 'Users',
             Key: {
-                "ID": userId
+                "ID": parseInt(userId)
             },
             UpdateExpression: "set EditableBoards = :EB, SubscribedBoards=:SB, #NM=:NM, Email=:Email",
             ExpressionAttributeNames: {
@@ -63,10 +63,31 @@ function usersModel() {
             if (err) {
                 error(err);
             } else {
-                success(data);
+                success(data.Items[0]);
             }
         });
     };
+
+    this.getUserByEmail = function (email, success, error) {
+        var params = {
+            TableName: 'Users',
+            FilterExpression: '#Email = :email',
+            ExpressionAttributeNames: {
+                "#Email": "Email"
+            },
+            ExpressionAttributeValues: {
+                ":email": email
+            }
+        };
+
+        docClient.scan(params, function (err, data) {
+            if (err) {
+                error(err);
+            } else {
+                success(data.Items[0]);
+            }
+        });
+    };    
 };
 
 module.exports = new usersModel();

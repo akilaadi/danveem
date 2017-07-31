@@ -4,6 +4,7 @@ var _ = require('underscore');
 var moment = require('moment');
 var model = require("../models/boardsModel");
 var usersModel = require("../models/usersModel");
+var invitationsModel = require("../models/invitationsModel");
 var nodemailer = require('nodemailer');
 
 module.exports.create_board = function (req, res) {
@@ -20,9 +21,9 @@ module.exports.create_board = function (req, res) {
 
     model.createBoard(item, function (data) {
         usersModel.getUser(req.body.adminUserId, function (response) {
-            response.Items[0].SubscribedBoards.push(item.ID);
-            response.Items[0].EditableBoards.push(item.ID);
-            usersModel.updateUser(req.body.adminUserId, response.Items[0], function (response) {
+            response.SubscribedBoards.push(item.ID);
+            response.EditableBoards.push(item.ID);
+            usersModel.updateUser(req.body.adminUserId, response, function (response) {
                 res.json(response);
             }, function (error) {
                 res.status(500).send({ error: error });
@@ -70,11 +71,25 @@ module.exports.share_board = function (req, res) {
         text: 'Please log in to http://danveem-web.ap-southeast-1.elasticbeanstalk.com access your latest announcements.'
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            res.status(500).send({ error: error });
-        } else {
-           res.json(info.response);
-        }
+    let invitation = {
+        ID:uuidv1(),
+        InviteeEmail: req.body.email,
+        SentBy: req.body.userId,
+        CreatedDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+        InvitationData: req.body.boardId,
+        InvitationType: 'NewBoard'
+    };
+    invitationsModel.createInvitation(invitation, function (data) {
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                res.status(500).send({ error: error });
+            } else {
+                res.json(info.response);
+            }
+        });
+    }, function (error) {
+        res.status(500).send({ error: error });
     });
+
+
 };
