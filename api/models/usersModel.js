@@ -87,7 +87,31 @@ function usersModel() {
                 success(data.Items[0]);
             }
         });
-    };    
+    };
+
+    this.getUsers = function (userIds, success, error) {
+        var expressionAttributeValues = {};
+        userIds.forEach(function (element, index) {
+            expressionAttributeValues[":val" + index] = element;
+        }, this);
+
+        var params = {
+            TableName: 'Users',
+            FilterExpression: '#ID IN (' + Object.keys(expressionAttributeValues).join(',') + ')',
+            ExpressionAttributeNames: {
+                "#ID": "ID"
+            },
+            ExpressionAttributeValues: expressionAttributeValues
+        };
+
+        docClient.scan(params, function (err, data) {
+            if (err) {
+                error(err);
+            } else {
+                success(data.Items);
+            }
+        });
+    };
 };
 
 module.exports = new usersModel();
